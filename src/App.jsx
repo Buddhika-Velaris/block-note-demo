@@ -50,8 +50,8 @@ const schema = BlockNoteSchema.create({
  
 // Slash menu item to insert an Alert block
 const insertAlert = (editor) => ({
-  title: "Alert",
-  subtext: "Alert for emphasizing text",
+  title: "Yasige Alert 🐒",
+  subtext: "Copilot thama hondatama kare",
   onItemClick: () =>
     // If the block containing the text caret is empty, `insertOrUpdateBlock`
     // changes its type to the provided block. Otherwise, it inserts the new
@@ -198,7 +198,7 @@ export default function App() {
         </Group>
       </Dialog>
 
-      <BlockNoteView editor={editor} formattingToolbar={false} slashMenu={false} data-color-scheme="bw" data-theming-css-variables-demo>
+      <BlockNoteView editor={editor} formattingToolbar={false} slashMenu={false} data-color-scheme="bw">
         {/* Replaces the default Formatting Toolbar */}
         <FormattingToolbarController
           formattingToolbar={() => (

@@ -84,7 +84,7 @@ export const Alert = createReactBlockSpec(
             </Menu.Target>
             {/*Dropdown to change the Alert type*/}
             <Menu.Dropdown>
-              <Menu.Label>Alert Type</Menu.Label>
+              <Menu.Label>Yasige Custom Alert Types</Menu.Label>
               <Menu.Divider />
               {alertTypes.map((type) => {
                 const ItemIcon = type.icon;

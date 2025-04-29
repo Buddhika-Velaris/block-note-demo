@@ -181,8 +181,19 @@ Black and White Theme
 .editor-container {
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: 768px;
   max-width: 100%;
+  margin: 0 auto;
+}
+
+/* Add default block spacing of 16px */
+.editor-container .bn-container [data-node-type] {
+  margin-bottom: 16px;
+}
+
+/* Remove margin from the last block to avoid extra spacing at the bottom */
+.editor-container .bn-container [data-node-type]:last-child {
+  margin-bottom: 0;
 }
 
 .top-dialog-container {
