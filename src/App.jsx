@@ -20,6 +20,7 @@ import { useState } from "react";
 import { RiAlertFill, RiChat3Fill } from "react-icons/ri";
 import { Alert } from "./Alert.jsx";
 import { DialogBlock } from "./components/DialogBlock.jsx";
+import { H4Block } from "./components/H4Block.jsx";
  
 
 async function uploadFile(file) {
@@ -45,6 +46,8 @@ const schema = BlockNoteSchema.create({
     alert: Alert,
     // Adds the Dialog block
     dialog: DialogBlock,
+    // Adds the H4 block
+    h4: H4Block,
   },
 });
  
@@ -94,6 +97,19 @@ const insertDialog = (editor) => ({
   ],
   group: "Basic blocks",
   icon: <RiChat3Fill />,
+});
+
+// Slash menu item to insert an H4 block
+const insertH4 = (editor) => ({
+  title: "Heading 4",
+  subtext: "Insert a level 4 heading",
+  onItemClick: () =>
+    insertOrUpdateBlock(editor, {
+      type: "h4",
+    }),
+  aliases: ["h4", "heading4", "heading", "title"],
+  group: "Basic blocks",
+  icon: <span style={{fontWeight:700}}>H4</span>,
 });
  
 export default function App() {
@@ -221,6 +237,13 @@ export default function App() {
                   type: "dialog",
                   icon: RiChat3Fill,
                   isSelected: (block) => block.type === "dialog",
+                },
+                // Adds an item for the H4 block
+                {
+                  name: "Heading 4",
+                  type: "h4",
+                  icon: () => <span style={{fontWeight:700}}>H4</span>,
+                  isSelected: (block) => block.type === "h4",
                 }
               ]}
             />
@@ -236,9 +259,10 @@ export default function App() {
             const lastBasicBlockIndex = defaultItems.findLastIndex(
               (item) => item.group === "Basic blocks"
             );
-            // Inserts the Alert and Dialog items as the last items in the "Basic blocks" group.
+            // Inserts the Alert, Dialog, and H4 items as the last items in the "Basic blocks" group.
             defaultItems.splice(lastBasicBlockIndex + 1, 0, insertAlert(editor));
             defaultItems.splice(lastBasicBlockIndex + 2, 0, insertDialog(editor));
+            defaultItems.splice(lastBasicBlockIndex + 3, 0, insertH4(editor));
    
             // Returns filtered items based on the query.
             return filterSuggestionItems(defaultItems, query);
