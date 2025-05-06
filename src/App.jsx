@@ -15,12 +15,13 @@ import {
   useCreateBlockNote,
   FormattingToolbar,
 } from "@blocknote/react";
-import { Button, Dialog, TextInput, Group } from "@mantine/core";
+import { Button, Modal, Input, Space } from "antd";
 import { useState } from "react";
 import { RiAlertFill, RiChat3Fill } from "react-icons/ri";
 import { Alert } from "./Alert.jsx";
 import { DialogBlock } from "./components/DialogBlock.jsx";
 import { H4Block } from "./components/H4Block.jsx";
+import { ConfluenceToolbar } from "./components/ConfluenceToolbar.jsx";
  
 
 async function uploadFile(file) {
@@ -108,7 +109,7 @@ const insertH4 = (editor) => ({
       type: "h4",
     }),
   aliases: ["h4", "heading4", "heading", "title"],
-  group: "Basic blocks",
+  group: "Headings",
   icon: <span style={{fontWeight:700}}>H4</span>,
 });
  
@@ -180,95 +181,69 @@ export default function App() {
   // Renders the editor instance.
   return (
     <div className="editor-container">
-      {/* Top dialog button */}
-      {/* <div className="top-dialog-container">
-        <Button 
-          onClick={() => setDialogOpened(true)}
-          variant="filled" 
-          color="blue"
-          fullWidth
-        >
-          Open Dialog to Add Text
-        </Button>
-      </div> */}
-
-      {/* Top dialog */}
-      <Dialog
-        opened={dialogOpened}
-        withCloseButton
-        onClose={() => setDialogOpened(false)}
-        position={{ top: 20, left: 20 }}
-        size="xl"
-      >
-        <h3 style={{ marginTop: 0 }}>Enter Text</h3>
-        <TextInput
-          placeholder="Type your text here"
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          mb={15}
-          autoFocus
-        />
-        <Group position="right">
-          <Button onClick={() => setDialogOpened(false)} variant="outline">Cancel</Button>
-          <Button onClick={insertTextFromDialog}>Insert Text</Button>
-        </Group>
-      </Dialog>
-
-      <BlockNoteView editor={editor} formattingToolbar={false} slashMenu={false} data-color-scheme="bw">
-        {/* Replaces the default Formatting Toolbar */}
-        <FormattingToolbarController
-          formattingToolbar={() => (
-            // Uses the default Formatting Toolbar.
-            <FormattingToolbar
-              // Sets the items in the Block Type Select.
-              blockTypeSelectItems={[
-                // Gets the default Block Type Select items.
-                ...blockTypeSelectItems(editor.dictionary),
-                // Adds an item for the Alert block.
-                {
-                  name: "Alert",
-                  type: "alert",
-                  icon: RiAlertFill,
-                  isSelected: (block) => block.type === "alert",
-                },
-                // Adds an item for the Dialog block
-                {
-                  name: "Dialog",
-                  type: "dialog",
-                  icon: RiChat3Fill,
-                  isSelected: (block) => block.type === "dialog",
-                },
-                // Adds an item for the H4 block
-                {
-                  name: "Heading 4",
-                  type: "h4",
-                  icon: () => <span style={{fontWeight:700}}>H4</span>,
-                  isSelected: (block) => block.type === "h4",
-                }
-              ]}
-            />
-          )}
-        />
-        {/* Replaces the default Slash Menu. */}
-        <SuggestionMenuController
-          triggerCharacter={"/"}
-          getItems={async (query) => {
-            // Gets all default slash menu items.
-            const defaultItems = getDefaultReactSlashMenuItems(editor);
-            // Finds index of last item in "Basic blocks" group.
-            const lastBasicBlockIndex = defaultItems.findLastIndex(
-              (item) => item.group === "Basic blocks"
-            );
-            // Inserts the Alert, Dialog, and H4 items as the last items in the "Basic blocks" group.
-            defaultItems.splice(lastBasicBlockIndex + 1, 0, insertAlert(editor));
-            defaultItems.splice(lastBasicBlockIndex + 2, 0, insertDialog(editor));
-            defaultItems.splice(lastBasicBlockIndex + 3, 0, insertH4(editor));
-   
-            // Returns filtered items based on the query.
-            return filterSuggestionItems(defaultItems, query);
-          }}
-        />
-      </BlockNoteView>
+      <div className="editor-with-toolbar">
+        {/* Confluence-style toolbar */}
+        <ConfluenceToolbar editor={editor} />
+        
+        <BlockNoteView editor={editor} formattingToolbar={false} slashMenu={false} data-color-scheme="bw">
+          {/* Replaces the default Formatting Toolbar */}
+          <FormattingToolbarController
+            formattingToolbar={() => (
+              // Uses the default Formatting Toolbar.
+              <FormattingToolbar
+                // Sets the items in the Block Type Select.
+                blockTypeSelectItems={[
+                  // Gets the default Block Type Select items.
+                  ...blockTypeSelectItems(editor.dictionary),
+                  // Adds an item for the Alert block.
+                  {
+                    name: "Alert",
+                    type: "alert",
+                    icon: RiAlertFill,
+                    isSelected: (block) => block.type === "alert",
+                  },
+                  // Adds an item for the Dialog block
+                  {
+                    name: "Dialog",
+                    type: "dialog",
+                    icon: RiChat3Fill,
+                    isSelected: (block) => block.type === "dialog",
+                  },
+                  // Adds an item for the H4 block
+                  {
+                    name: "Heading 4",
+                    type: "h4",
+                    icon: () => <span style={{fontWeight:700}}>H4</span>,
+                    isSelected: (block) => block.type === "h4",
+                  }
+                ]}
+              />
+            )}
+          />
+          {/* Replaces the default Slash Menu. */}
+          <SuggestionMenuController
+            triggerCharacter={"/"}
+            getItems={async (query) => {
+              // Gets all default slash menu items.
+              const defaultItems = getDefaultReactSlashMenuItems(editor);
+              // Finds index of last item in "Basic blocks" group.
+              const lastBasicBlockIndex = defaultItems.findLastIndex(
+                (item) => item.group === "Basic blocks"
+              );
+              const lastHeadingBlockIndex = defaultItems.findLastIndex(
+                (item) => item.group === "Headings"
+              );
+              // Inserts the Alert, Dialog, and H4 items
+              defaultItems.splice(lastHeadingBlockIndex + 1, 1, insertH4(editor));
+              defaultItems.splice(lastBasicBlockIndex + 1, 0, insertAlert(editor));
+              defaultItems.splice(lastBasicBlockIndex + 0, 0, insertDialog(editor));
+     
+              // Returns filtered items based on the query.
+              return filterSuggestionItems(defaultItems, query);
+            }}
+          />
+        </BlockNoteView>
+      </div>
     </div>
   );
 }

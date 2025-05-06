@@ -1,7 +1,12 @@
 import { defaultProps } from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
-import { Menu } from "@mantine/core";
-import { MdCancel, MdCheckCircle, MdError, MdInfo } from "react-icons/md";
+import { Dropdown, Menu } from "antd";
+import { 
+  WarningOutlined, 
+  CloseCircleOutlined, 
+  InfoCircleOutlined, 
+  CheckCircleOutlined 
+} from "@ant-design/icons";
  
 import "./App.css";
  
@@ -10,7 +15,7 @@ export const alertTypes = [
   {
     title: "Warning",
     value: "warning",
-    icon: MdError,
+    icon: WarningOutlined,
     color: "#e69819",
     backgroundColor: {
       light: "#fff6e6",
@@ -20,7 +25,7 @@ export const alertTypes = [
   {
     title: "Error",
     value: "error",
-    icon: MdCancel,
+    icon: CloseCircleOutlined,
     color: "#d80d0d",
     backgroundColor: {
       light: "#ffe6e6",
@@ -30,7 +35,7 @@ export const alertTypes = [
   {
     title: "Info",
     value: "info",
-    icon: MdInfo,
+    icon: InfoCircleOutlined,
     color: "#507aff",
     backgroundColor: {
       light: "#e6ebff",
@@ -40,7 +45,7 @@ export const alertTypes = [
   {
     title: "Success",
     value: "success",
-    icon: MdCheckCircle,
+    icon: CheckCircleOutlined,
     color: "#0bc10b",
     backgroundColor: {
       light: "#e6ffe6",
@@ -68,48 +73,36 @@ export const Alert = createReactBlockSpec(
       const alertType = alertTypes.find(
         (a) => a.value === props.block.props.type
       );
-      const Icon = alertType.icon;
+      const IconComponent = alertType.icon;
+      
+      // Define menu items for the dropdown
+      const menu = (
+        <Menu
+          items={alertTypes.map((type) => ({
+            key: type.value,
+            icon: <type.icon style={{ color: type.color }} />,
+            label: type.title,
+            onClick: () => 
+              props.editor.updateBlock(props.block, {
+                type: "alert",
+                props: { type: type.value },
+              })
+          }))}
+        />
+      );
+
       return (
         <div className={"alert"} data-alert-type={props.block.props.type}>
           {/*Icon which opens a menu to choose the Alert type*/}
-          <Menu withinPortal={false}>
-            <Menu.Target>
-              <div className={"alert-icon-wrapper"} contentEditable={false}>
-                <Icon
-                  className={"alert-icon"}
-                  data-alert-icon-type={props.block.props.type}
-                  size={32}
-                />
-              </div>
-            </Menu.Target>
-            {/*Dropdown to change the Alert type*/}
-            <Menu.Dropdown>
-              <Menu.Label>Yasige Custom Alert Types</Menu.Label>
-              <Menu.Divider />
-              {alertTypes.map((type) => {
-                const ItemIcon = type.icon;
- 
-                return (
-                  <Menu.Item
-                    key={type.value}
-                    leftSection={
-                      <ItemIcon
-                        className={"alert-icon"}
-                        data-alert-icon-type={type.value}
-                      />
-                    }
-                    onClick={() =>
-                      props.editor.updateBlock(props.block, {
-                        type: "alert",
-                        props: { type: type.value },
-                      })
-                    }>
-                    {type.title}
-                  </Menu.Item>
-                );
-              })}
-            </Menu.Dropdown>
-          </Menu>
+          <Dropdown overlay={menu} trigger={['click']} placement="bottomLeft">
+            <div className={"alert-icon-wrapper"} contentEditable={false}>
+              <IconComponent
+                className={"alert-icon"}
+                data-alert-icon-type={props.block.props.type}
+                style={{ fontSize: '32px' }}
+              />
+            </div>
+          </Dropdown>
           {/*Rich text field for user to type in*/}
           <div className={"inline-content"} ref={props.contentRef} />
         </div>

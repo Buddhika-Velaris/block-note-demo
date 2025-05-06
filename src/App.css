@@ -51,73 +51,75 @@ Black and White Theme
 
   .alert {
     display: flex;
-    justify-content: center;
     align-items: center;
-    flex-grow: 1;
-    border-radius: 4px;
+    border-radius: 6px;
     min-height: 48px;
-    padding: 4px;
+    padding: 8px 12px;
+    margin: 8px 0;
 }
  
 .alert[data-alert-type="warning"] {
-    background-color: #fff6e6;
+    background-color: #fffbe6;
+    border: 1px solid #ffe58f;
 }
  
 .alert[data-alert-type="error"] {
-    background-color: #ffe6e6;
+    background-color: #fff2f0;
+    border: 1px solid #ffccc7;
 }
  
 .alert[data-alert-type="info"] {
-    background-color: #e6ebff;
+    background-color: #e6f7ff;
+    border: 1px solid #91d5ff;
 }
  
 .alert[data-alert-type="success"] {
-    background-color: #e6ffe6;
+    background-color: #f6ffed;
+    border: 1px solid #b7eb8f;
 }
  
 [data-color-scheme="dark"] .alert[data-alert-type="warning"] {
-    background-color: #805d20;
+    background-color: rgba(255, 251, 230, 0.04);
+    border-color: #d8bd14;
 }
  
 [data-color-scheme="dark"] .alert[data-alert-type="error"] {
-    background-color: #802020;
+    background-color: rgba(255, 242, 240, 0.04);
+    border-color: #a61d24;
 }
  
 [data-color-scheme="dark"] .alert[data-alert-type="info"] {
-    background-color: #203380;
+    background-color: rgba(230, 247, 255, 0.04);
+    border-color: #177ddc;
 }
  
 [data-color-scheme="dark"] .alert[data-alert-type="success"] {
-    background-color: #208020;
+    background-color: rgba(246, 255, 237, 0.04);
+    border-color: #49aa19;
 }
  
 .alert-icon-wrapper {
-    border-radius: 16px;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-left: 12px;
     margin-right: 12px;
-    height: 18px;
-    width: 18px;
-    user-select: none;
     cursor: pointer;
 }
  
 .alert-icon[data-alert-icon-type="warning"] {
-    color: #e69819
+    color: #faad14;
 }
  
 .alert-icon[data-alert-icon-type="error"] {
-    color: #d80d0d
+    color: #ff4d4f;
 }
  
 .alert-icon[data-alert-icon-type="info"] {
-    color: #507aff
+    color: #1890ff;
 }
  
 .alert-icon[data-alert-icon-type="success"] {
-    color: #0bc10b
+    color: #52c41a;
 }
  
 .inline-content {
@@ -129,15 +131,15 @@ Black and White Theme
   display: flex;
   flex-direction: column;
   padding: 12px;
-  border: 1px solid var(--bn-colors-border, #cccccc);
+  border: 1px solid #e8e8e8;
   border-radius: 6px;
   margin: 8px 0;
-  background-color: #f9f9f9;
+  background-color: #f5f5f5;
 }
 
 [data-color-scheme="dark"] .dialog-block {
-  background-color: #333333;
-  border-color: #555555;
+  background-color: #262626;
+  border-color: #434343;
 }
 
 .dialog-button-wrapper {
@@ -149,10 +151,13 @@ Black and White Theme
   background-color: white;
   border-radius: 4px;
   min-height: 40px;
+  border: 1px solid #e8e8e8;
 }
 
 [data-color-scheme="dark"] .dialog-content {
-  background-color: #222222;
+  background-color: #1f1f1f;
+  border-color: #434343;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .dialog-text {
@@ -161,8 +166,12 @@ Black and White Theme
 }
 
 .dialog-placeholder {
-  color: #888888;
+  color: rgba(0, 0, 0, 0.45);
   font-style: italic;
+}
+
+[data-color-scheme="dark"] .dialog-placeholder {
+  color: rgba(255, 255, 255, 0.45);
 }
 
 .dialog-actions {
@@ -197,13 +206,24 @@ Black and White Theme
 }
 
 .top-dialog-container {
-  padding: 10px 0;
-  margin-bottom: 10px;
-  border-bottom: 1px solid var(--bn-colors-border, #cccccc);
+  padding: 16px 0;
+  margin-bottom: 16px;
+  border-bottom: none;
 }
 
-[data-color-scheme="dark"] .top-dialog-container {
-  border-bottom-color: #555555;
+/* Button for top dialog */
+.top-dialog-container .mantine-Button-root {
+  border-radius: 8px;
+  height: 44px;
+  font-size: 15px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+}
+
+.top-dialog-container .mantine-Button-root:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 /* Top Editor Dialog Styles */
@@ -321,4 +341,200 @@ Black and White Theme
 [data-color-scheme="dark"] .mantine-TextInput-input {
   background-color: #444;
   border-color: #555;
+}
+
+/* Confluence Toolbar Styles */
+.confluence-toolbar {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 16px;
+  border: 1px solid #e8e8e8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s ease;
+}
+
+.confluence-toolbar:hover {
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+}
+
+[data-color-scheme="dark"] .confluence-toolbar {
+  background-color: #1f1f1f;
+  border-color: #434343;
+}
+
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.toolbar-divider {
+  height: 24px !important;
+  background-color: #e8e8e8 !important;
+  margin: 0 8px !important;
+}
+
+[data-color-scheme="dark"] .toolbar-divider {
+  background-color: #434343 !important;
+}
+
+.modern-action-icon {
+  min-width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.modern-action-icon:hover {
+  background-color: #f0f2f5 !important;
+  transform: translateY(-1px);
+}
+
+[data-color-scheme="dark"] .modern-action-icon:hover {
+  background-color: #3a3a3a !important;
+}
+
+.block-type-button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  font-weight: 500 !important;
+}
+
+.block-type-button .anticon {
+  margin-left: 8px;
+}
+
+.block-type-button:hover {
+  background-color: #f0f2f5 !important;
+  transform: translateY(-1px);
+}
+
+[data-color-scheme="dark"] .block-type-button {
+  color: #f0f0f0;
+}
+
+[data-color-scheme="dark"] .block-type-button:hover {
+  background-color: #3a3a3a !important;
+}
+
+.editor-with-toolbar {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e8e8e8;
+}
+
+[data-color-scheme="dark"] .editor-with-toolbar {
+  border-color: #434343;
+  background-color: #141414;
+}
+
+.editor-with-toolbar .bn-container {
+  border: none !important;
+  padding: 20px !important;
+}
+
+.confluence-toolbar .mantine-ActionIcon-root {
+  color: #42526e;
+  border-radius: 3px;
+  transition: background-color 0.2s;
+  width: 32px;
+  height: 32px;
+}
+
+.confluence-toolbar .mantine-ActionIcon-root:hover {
+  background-color: rgba(9, 30, 66, 0.08);
+}
+
+[data-color-scheme="dark"] .confluence-toolbar .mantine-ActionIcon-root {
+  color: #c7d1db;
+}
+
+[data-color-scheme="dark"] .confluence-toolbar .mantine-ActionIcon-root:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Fixing dividers in toolbar */
+.mantine-Divider-root {
+  border-color: #e8e8e8 !important;
+  height: 28px !important;
+  margin: 0 4px !important;
+}
+
+[data-color-scheme="dark"] .mantine-Divider-root {
+  border-color: #434343 !important;
+}
+
+/* Style dropdown menus */
+.mantine-Menu-dropdown {
+  border-radius: 8px !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12) !important;
+}
+
+.mantine-Menu-item {
+  border-radius: 4px !important;
+  margin: 4px !important;
+}
+
+[data-color-scheme="dark"] .mantine-Menu-dropdown {
+  background-color: #2c2c2c !important;
+  border-color: #444 !important;
+}
+
+[data-color-scheme="dark"] .mantine-Menu-label {
+  color: #c0c0c0 !important;
+}
+
+/* Make tooltips look more modern */
+.mantine-Tooltip-tooltip {
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  padding: 6px 10px !important;
+}
+
+/* Style for inserted images */
+.bn-img {
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+
+.bn-img-caption {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.45);
+  text-align: center;
+  padding: 6px 0;
+}
+
+[data-color-scheme="dark"] .bn-img-caption {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* Fix for Ant Design modal in your editor context */
+.center-modal-dialog .ant-modal-content {
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.center-modal-dialog .ant-modal-header {
+  padding: 0;
+  margin-bottom: 16px;
+  border-bottom: 0;
+}
+
+.center-modal-dialog .ant-modal-title {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.center-modal-dialog .ant-modal-footer {
+  padding: 10px 0 0;
+  margin-top: 16px;
+  border-top: 0;
 }

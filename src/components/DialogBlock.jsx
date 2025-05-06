@@ -1,13 +1,11 @@
 import { defaultProps } from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
-import { Button, Modal, TextInput } from "@mantine/core";
+import { Button, Modal, Input, Select } from "antd";
 import { useState, useEffect, useRef } from "react";
-import { MdChat } from "react-icons/md";
+import { MessageOutlined } from "@ant-design/icons";
 import { createPortal } from "react-dom";
 
 import "../App.css";
-
-
 
 // Global state for managing the dialog
 const dialogState = {
@@ -73,36 +71,38 @@ const CenterModal = () => {
 
   return createPortal(
     <Modal
-      opened={isOpen}
-      onClose={() => dialogState.closeDialog()}
+      open={isOpen}
+      onCancel={() => dialogState.closeDialog()}
       title={title || "Enter Information"}
       centered
-      overlayProps={{
-        color: 'rgba(0, 0, 0, 0.55)',
-        blur: 3,
-      }}
-      size="md"
-      withCloseButton
+      footer={[
+        <Button key="cancel" onClick={() => dialogState.closeDialog()}>
+          Cancel
+        </Button>,
+        <Button key="save" type="primary" onClick={() => dialogState.saveDialog(inputText)}>
+          Save
+        </Button>
+      ]}
       className="center-modal-dialog"
     >
-      <TextInput
+      <Input.TextArea
         placeholder="Type your text here"
-        label="Content"
         value={inputText}
         onChange={(e) => setInputText(e.target.value)}
-        mb={20}
+        autoSize={{ minRows: 3, maxRows: 6 }}
+        style={{ marginBottom: 16 }}
         autoFocus
       />
-      <select name="cars" id="cars">
-  <option value="volvo">Volvo</option>
-  <option value="saab">Saab</option>
-  <option value="mercedes">Mercedes</option>
-  <option value="audi">Audi</option>
-</select>
-      <div className="dialog-actions">
-        <Button onClick={() => dialogState.closeDialog()} variant="outline" mr={10}>Cancel</Button>
-        <Button onClick={() => dialogState.saveDialog(inputText)} color="blue">Save</Button>
-      </div>
+      <Select
+        defaultValue="volvo"
+        style={{ width: '100%' }}
+        options={[
+          { value: 'volvo', label: 'Volvo' },
+          { value: 'saab', label: 'Saab' },
+          { value: 'mercedes', label: 'Mercedes' },
+          { value: 'audi', label: 'Audi' }
+        ]}
+      />
     </Modal>,
     targetElement
   );
@@ -171,10 +171,9 @@ export const DialogBlock = createReactBlockSpec(
           <div className="dialog-button-wrapper" contentEditable={false}>
             <Button 
               ref={buttonRef}
-              leftSection={<MdChat size={18} />}
+              icon={<MessageOutlined />}
               onClick={handleOpenDialog}
-              variant="light"
-              color="blue"
+              type="default"
             >
               {props.block.props.title || "Enter Information"}
             </Button>
