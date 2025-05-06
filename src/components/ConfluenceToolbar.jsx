@@ -1,4 +1,4 @@
-import { Button, Dropdown, Tooltip, Menu, Divider, Upload } from "antd";
+import { Button, Dropdown, Tooltip, Menu, Divider, Upload, Popover } from "antd";
 import { useState, useRef } from "react";
 import {
   BoldOutlined,
@@ -20,12 +20,31 @@ import {
   DownOutlined,
   PlusSquareOutlined,
   ColumnWidthOutlined,
+  BgColorsOutlined,
+  FontColorsOutlined,
 } from "@ant-design/icons";
 
 export const ConfluenceToolbar = ({ editor }) => {
   const [blockType, setBlockType] = useState("paragraph");
   const [isImageUploading, setIsImageUploading] = useState(false);
+  const [colorPickerVisible, setColorPickerVisible] = useState(false);
   
+  // Color options for text and background
+  const colorOptions = [
+    { color: "default", label: "Default" },
+    { color: "black", label: "Black" },
+    { color: "gray", label: "Gray" },
+    { color: "brown", label: "Brown" },
+    { color: "orange", label: "Orange" },
+    { color: "yellow", label: "Yellow" },
+    { color: "green", label: "Green" },
+    { color: "blue", label: "Blue" },
+    { color: "purple", label: "Purple" },
+    { color: "pink", label: "Pink" },
+    { color: "red", label: "Red" },
+  ];
+  
+  // Format options for block types
   const formatOptions = [
     { value: "paragraph", label: "Normal text" },
     { value: "heading", label: "Heading 1" },
@@ -155,6 +174,34 @@ export const ConfluenceToolbar = ({ editor }) => {
         break;
     }
   };
+  
+  // Apply text color
+  const applyTextColor = (color) => {
+    if (!editor) return;
+    
+    if (color === "default") {
+      // Remove text color
+      editor.removeStyles(["textColor"]);
+    } else {
+      editor.toggleStyles({ textColor: color });
+    }
+    
+    setColorPickerVisible(false);
+  };
+  
+  // Apply background color
+  const applyBackgroundColor = (color) => {
+    if (!editor) return;
+    
+    if (color === "default") {
+      // Remove background color
+      editor.removeStyles(["backgroundColor"]);
+    } else {
+      editor.toggleStyles({ backgroundColor: color });
+    }
+    
+    setColorPickerVisible(false);
+  };
 
   // Get current block type for select
   const getCurrentBlockType = () => {
@@ -169,6 +216,20 @@ export const ConfluenceToolbar = ({ editor }) => {
     if (!editor) return false;
     const styles = editor.getActiveStyles();
     return !!styles[style];
+  };
+  
+  // Helper to get active text color
+  const getActiveTextColor = () => {
+    if (!editor) return null;
+    const styles = editor.getActiveStyles();
+    return styles.textColor || null;
+  };
+  
+  // Helper to get active background color
+  const getActiveBackgroundColor = () => {
+    if (!editor) return null;
+    const styles = editor.getActiveStyles();
+    return styles.backgroundColor || null;
   };
 
   // Create dropdown menu for block types
@@ -226,6 +287,60 @@ export const ConfluenceToolbar = ({ editor }) => {
         },
       ]}
     />
+  );
+  
+  // Color picker content
+  const colorPickerContent = (
+    <div style={{ width: 220 }}>
+      <div style={{ marginBottom: 10 }}>
+        <div style={{ fontWeight: 500, marginBottom: 5 }}>Text Color</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+          {colorOptions.map((option) => (
+            <Tooltip key={`text-${option.color}`} title={option.label}>
+              <div 
+                onClick={() => applyTextColor(option.color)}
+                style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: 4,
+                  cursor: 'pointer',
+                  backgroundColor: option.color === 'default' ? '#ffffff' : option.color,
+                  border: '1px solid #d9d9d9',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  boxShadow: getActiveTextColor() === option.color ? '0 0 0 2px #1890ff' : 'none'
+                }}
+              >
+                {option.color === 'default' && <span style={{ fontSize: 16 }}>T</span>}
+              </div>
+            </Tooltip>
+          ))}
+        </div>
+      </div>
+      
+      <div>
+        <div style={{ fontWeight: 500, marginBottom: 5 }}>Background Color</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+          {colorOptions.map((option) => (
+            <Tooltip key={`bg-${option.color}`} title={option.label}>
+              <div 
+                onClick={() => applyBackgroundColor(option.color)}
+                style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: 4,
+                  cursor: 'pointer',
+                  backgroundColor: option.color === 'default' ? '#ffffff' : option.color,
+                  border: '1px solid #d9d9d9',
+                  boxShadow: getActiveBackgroundColor() === option.color ? '0 0 0 2px #1890ff' : 'none'
+                }}
+              />
+            </Tooltip>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 
   return (
@@ -288,6 +403,24 @@ export const ConfluenceToolbar = ({ editor }) => {
             className="modern-action-icon"
           />
         </Tooltip>
+        
+        {/* Add Color Picker Button */}
+        <Popover
+          content={colorPickerContent}
+          trigger="click"
+          visible={colorPickerVisible}
+          onVisibleChange={setColorPickerVisible}
+          placement="bottom"
+          overlayClassName="color-picker-popover"
+        >
+          <Tooltip title="Text and Background Color" placement="bottom">
+            <Button
+              type={(getActiveTextColor() || getActiveBackgroundColor()) ? "primary" : "text"}
+              icon={<FontColorsOutlined />}
+              className="modern-action-icon"
+            />
+          </Tooltip>
+        </Popover>
         
         <Divider type="vertical" className="toolbar-divider" />
         
