@@ -193,6 +193,7 @@ Black and White Theme
   /* width: 768px; */
   max-width: 100%;
   margin: 0 auto;
+  height: 100vh; /* Set container height to full viewport height */
 }
 
 /* Add default block spacing of 16px */
@@ -435,12 +436,22 @@ Black and White Theme
   border: 1px solid #e8e8e8;
   display: flex;
   flex-direction: column;
+  height: 100%; /* Make editor container take full height of its parent */
 }
 
 /* Add a new class for the editor content */
 .editor-content {
   overflow: auto;
   border-radius: 0 0 8px 8px;
+  flex: 1; /* Allow the editor content to expand to fill available space */
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-content .bn-container {
+  flex: 1; /* Make BlockNote container fill the available space */
+  display: flex;
+  flex-direction: column;
 }
 
 [data-color-scheme="dark"] .editor-with-toolbar {
