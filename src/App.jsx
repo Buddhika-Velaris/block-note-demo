@@ -238,93 +238,95 @@ export default function App() {
         {/* Confluence-style toolbar */}
         <ConfluenceToolbar editor={editor} />
 
-        <BlockNoteView 
-          editor={editor} 
-          formattingToolbar={false} 
-          slashMenu={false} 
-          data-color-scheme="bw"
-          onSelectionChange={handleSelectionChange} // Added the recommended onSelectionChange prop
-        >
-          {/* Replaces the default Formatting Toolbar */}
-          <FormattingToolbarController
-            formattingToolbar={() => (
-              // Uses the default Formatting Toolbar.
-              <FormattingToolbar>
-                <BlockTypeSelect key={"blockTypeSelect"} />
+        <div className="editor-content">
+          <BlockNoteView 
+            editor={editor} 
+            formattingToolbar={false} 
+            slashMenu={false} 
+            data-color-scheme="bw"
+            onSelectionChange={handleSelectionChange} // Added the recommended onSelectionChange prop
+          >
+            {/* Replaces the default Formatting Toolbar */}
+            <FormattingToolbarController
+              formattingToolbar={() => (
+                // Uses the default Formatting Toolbar.
+                <FormattingToolbar>
+                  <BlockTypeSelect key={"blockTypeSelect"} />
 
-                {/* Color button with multiple color options */}
-                <ColorButton key={"customButton"} />
+                  {/* Color button with multiple color options */}
+                  <ColorButton key={"customButton"} />
 
-                <FileCaptionButton key={"fileCaptionButton"} />
-                <FileReplaceButton key={"replaceFileButton"} />
+                  <FileCaptionButton key={"fileCaptionButton"} />
+                  <FileReplaceButton key={"replaceFileButton"} />
 
-                <BasicTextStyleButton
-                  basicTextStyle={"bold"}
-                  key={"boldStyleButton"}
-                />
-                <BasicTextStyleButton
-                  basicTextStyle={"italic"}
-                  key={"italicStyleButton"}
-                />
-                <BasicTextStyleButton
-                  basicTextStyle={"underline"}
-                  key={"underlineStyleButton"}
-                />
-                <BasicTextStyleButton
-                  basicTextStyle={"strike"}
-                  key={"strikeStyleButton"}
-                />
-                {/* Extra button to toggle code styles */}
-                <BasicTextStyleButton
-                  key={"codeStyleButton"}
-                  basicTextStyle={"code"}
-                />
+                  <BasicTextStyleButton
+                    basicTextStyle={"bold"}
+                    key={"boldStyleButton"}
+                  />
+                  <BasicTextStyleButton
+                    basicTextStyle={"italic"}
+                    key={"italicStyleButton"}
+                  />
+                  <BasicTextStyleButton
+                    basicTextStyle={"underline"}
+                    key={"underlineStyleButton"}
+                  />
+                  <BasicTextStyleButton
+                    basicTextStyle={"strike"}
+                    key={"strikeStyleButton"}
+                  />
+                  {/* Extra button to toggle code styles */}
+                  <BasicTextStyleButton
+                    key={"codeStyleButton"}
+                    basicTextStyle={"code"}
+                  />
 
-                <TextAlignButton
-                  textAlignment={"left"}
-                  key={"textAlignLeftButton"}
-                />
-                <TextAlignButton
-                  textAlignment={"center"}
-                  key={"textAlignCenterButton"}
-                />
-                <TextAlignButton
-                  textAlignment={"right"}
-                  key={"textAlignRightButton"}
-                />
+                  <TextAlignButton
+                    textAlignment={"left"}
+                    key={"textAlignLeftButton"}
+                  />
+                  <TextAlignButton
+                    textAlignment={"center"}
+                    key={"textAlignCenterButton"}
+                  />
+                  <TextAlignButton
+                    textAlignment={"right"}
+                    key={"textAlignRightButton"}
+                  />
 
-                <ColorStyleButton key={"colorStyleButton"} />
+                  <ColorStyleButton key={"colorStyleButton"} />
 
-                <NestBlockButton key={"nestBlockButton"} />
-                <UnnestBlockButton key={"unnestBlockButton"} />
+                  <NestBlockButton key={"nestBlockButton"} />
+                  <UnnestBlockButton key={"unnestBlockButton"} />
 
-                <CreateLinkButton key={"createLinkButton"} />
-              </FormattingToolbar>
-            )}
-          />
-          {/* Replaces the default Slash Menu. */}
-          <SuggestionMenuController
-            triggerCharacter={"/"}
-            getItems={async (query) => {
-              // Gets all default slash menu items.
-              const defaultItems = getDefaultReactSlashMenuItems(editor);
-              // Finds index of last item in "Basic blocks" group.
-              const lastBasicBlockIndex = defaultItems.findLastIndex(
-                (item) => item.group === "Basic blocks"
-              );
-              const lastHeadingBlockIndex = defaultItems.findLastIndex(
-                (item) => item.group === "Headings"
-              );
-              // Inserts the Alert, Dialog, and H4 items
-              defaultItems.splice(lastHeadingBlockIndex + 1, 1, insertH4(editor));
-              defaultItems.splice(lastBasicBlockIndex + 1, 0, insertAlert(editor));
-              defaultItems.splice(lastBasicBlockIndex + 0, 0, insertDialog(editor));
+                  <CreateLinkButton key={"createLinkButton"} />
+                </FormattingToolbar>
+              )}
+            />
+            {/* Replaces the default Slash Menu. */}
+            <SuggestionMenuController
+              triggerCharacter={"/"}
+              getItems={async (query) => {
+                // Gets all default slash menu items.
+                const defaultItems = getDefaultReactSlashMenuItems(editor);
+                // Finds index of last item in "Basic blocks" group.
+                const lastBasicBlockIndex = defaultItems.findLastIndex(
+                  (item) => item.group === "Basic blocks"
+                );
+                const lastHeadingBlockIndex = defaultItems.findLastIndex(
+                  (item) => item.group === "Headings"
+                );
+                // Inserts the Alert, Dialog, and H4 items
+                defaultItems.splice(lastHeadingBlockIndex + 1, 1, insertH4(editor));
+                defaultItems.splice(lastBasicBlockIndex + 1, 0, insertAlert(editor));
+                defaultItems.splice(lastBasicBlockIndex + 0, 0, insertDialog(editor));
 
-              // Returns filtered items based on the query.
-              return filterSuggestionItems(defaultItems, query);
-            }}
-          />
-        </BlockNoteView>
+                // Returns filtered items based on the query.
+                return filterSuggestionItems(defaultItems, query);
+              }}
+            />
+          </BlockNoteView>
+        </div>
       </div>
     </div>
   );
