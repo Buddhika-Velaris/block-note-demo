@@ -1,5 +1,5 @@
-import { Button, Dropdown, Tooltip, Menu, Divider, Upload, Popover } from "antd";
-import { useState, useRef } from "react";
+import { Button, Dropdown, Tooltip, Menu, Divider, Upload, Popover, Tabs } from "antd";
+import { useState, useRef, useEffect } from "react";
 import {
   BoldOutlined,
   ItalicOutlined,
@@ -23,26 +23,38 @@ import {
   BgColorsOutlined,
   FontColorsOutlined,
 } from "@ant-design/icons";
+import { useBlockFormatTracker } from "../hooks/useBlockFormatTracker";
+
+// Define available colors - matching BluteButton.jsx implementation
+const colorOptions = [
+  { color: "blue", label: "Blue" },
+  { color: "red", label: "Red" },
+  { color: "green", label: "Green" },
+  { color: "yellow", label: "Yellow" },
+  { color: "purple", label: "Purple" },
+  { color: "orange", label: "Orange" },
+  { color: "pink", label: "Pink" },
+  { color: "black", label: "Black" },
+  { color: "gray", label: "Gray" },
+];
 
 export const ConfluenceToolbar = ({ editor }) => {
   const [blockType, setBlockType] = useState("paragraph");
   const [isImageUploading, setIsImageUploading] = useState(false);
   const [colorPickerVisible, setColorPickerVisible] = useState(false);
+  const [activeTab, setActiveTab] = useState("text");
   
-  // Color options for text and background
-  const colorOptions = [
-    { color: "default", label: "Default" },
-    { color: "black", label: "Black" },
-    { color: "gray", label: "Gray" },
-    { color: "brown", label: "Brown" },
-    { color: "orange", label: "Orange" },
-    { color: "yellow", label: "Yellow" },
-    { color: "green", label: "Green" },
-    { color: "blue", label: "Blue" },
-    { color: "purple", label: "Purple" },
-    { color: "pink", label: "Pink" },
-    { color: "red", label: "Red" },
-  ];
+  // Use our block format tracker hook
+  const {
+    activeStyles,
+    blockStyles,
+    activeBlockId,
+    applyStyle,
+    getBlockStyle,
+    isStyleActive,
+    isButtonActive, // Using the new function for temporary button state
+    insertFormattedText
+  } = useBlockFormatTracker(editor);
   
   // Format options for block types
   const formatOptions = [
@@ -57,6 +69,25 @@ export const ConfluenceToolbar = ({ editor }) => {
     { value: "alert", label: "Alert" },
     { value: "dialog", label: "Dialog" },
   ];
+
+  // Handle tab change
+  const handleTabChange = (key) => {
+    setActiveTab(key);
+  };
+
+  // Apply text color and close menu
+  const applyTextColor = (color) => {
+    if (!editor) return;
+    applyStyle('textColor', color);
+    setColorPickerVisible(false); // Close the menu after color selection
+  };
+  
+  // Apply background color and close menu
+  const applyBackgroundColor = (color) => {
+    if (!editor) return;
+    applyStyle('backgroundColor', color);
+    setColorPickerVisible(false); // Close the menu after color selection
+  };
 
   // Handle block type change
   const handleBlockTypeChange = (value) => {
@@ -109,19 +140,19 @@ export const ConfluenceToolbar = ({ editor }) => {
     
     switch (format) {
       case "bold":
-        editor.toggleStyles({ bold: true });
+        applyStyle('bold');
         break;
       case "italic":
-        editor.toggleStyles({ italic: true });
+        applyStyle('italic');
         break;
       case "underline":
-        editor.toggleStyles({ underline: true });
+        applyStyle('underline');
         break;
       case "strike":
-        editor.toggleStyles({ strike: true });
+        applyStyle('strike');
         break;
       case "code":
-        editor.toggleStyles({ code: true });
+        applyStyle('code');
         break;
       case "link":
         // Get selected text
@@ -129,7 +160,7 @@ export const ConfluenceToolbar = ({ editor }) => {
         // Show link dialog in production app
         const url = prompt("Enter URL:", "https://");
         if (url) {
-          editor.toggleStyles({ link: url });
+          applyStyle('link', url);
         }
         break;
       case "bulletList":
@@ -175,34 +206,6 @@ export const ConfluenceToolbar = ({ editor }) => {
     }
   };
   
-  // Apply text color
-  const applyTextColor = (color) => {
-    if (!editor) return;
-    
-    if (color === "default") {
-      // Remove text color
-      editor.removeStyles(["textColor"]);
-    } else {
-      editor.toggleStyles({ textColor: color });
-    }
-    
-    setColorPickerVisible(false);
-  };
-  
-  // Apply background color
-  const applyBackgroundColor = (color) => {
-    if (!editor) return;
-    
-    if (color === "default") {
-      // Remove background color
-      editor.removeStyles(["backgroundColor"]);
-    } else {
-      editor.toggleStyles({ backgroundColor: color });
-    }
-    
-    setColorPickerVisible(false);
-  };
-
   // Get current block type for select
   const getCurrentBlockType = () => {
     if (!editor) return "paragraph";
@@ -210,28 +213,7 @@ export const ConfluenceToolbar = ({ editor }) => {
     const currentBlock = editor.getTextCursorPosition().block;
     return currentBlock?.type || "paragraph";
   };
-
-  // Helper to determine if the current selection has a specific style
-  const isStyleActive = (style) => {
-    if (!editor) return false;
-    const styles = editor.getActiveStyles();
-    return !!styles[style];
-  };
   
-  // Helper to get active text color
-  const getActiveTextColor = () => {
-    if (!editor) return null;
-    const styles = editor.getActiveStyles();
-    return styles.textColor || null;
-  };
-  
-  // Helper to get active background color
-  const getActiveBackgroundColor = () => {
-    if (!editor) return null;
-    const styles = editor.getActiveStyles();
-    return styles.backgroundColor || null;
-  };
-
   // Create dropdown menu for block types
   const blockTypeMenu = (
     <Menu
@@ -289,57 +271,117 @@ export const ConfluenceToolbar = ({ editor }) => {
     />
   );
   
-  // Color picker content
+  // Color picker content with tabs and color swatches
   const colorPickerContent = (
-    <div style={{ width: 220 }}>
-      <div style={{ marginBottom: 10 }}>
-        <div style={{ fontWeight: 500, marginBottom: 5 }}>Text Color</div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-          {colorOptions.map((option) => (
-            <Tooltip key={`text-${option.color}`} title={option.label}>
-              <div 
-                onClick={() => applyTextColor(option.color)}
-                style={{
-                  width: 24,
-                  height: 24,
-                  borderRadius: 4,
-                  cursor: 'pointer',
-                  backgroundColor: option.color === 'default' ? '#ffffff' : option.color,
-                  border: '1px solid #d9d9d9',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  boxShadow: getActiveTextColor() === option.color ? '0 0 0 2px #1890ff' : 'none'
-                }}
-              >
-                {option.color === 'default' && <span style={{ fontSize: 16 }}>T</span>}
+    <div style={{ width: 250 }}>
+      <Tabs
+        defaultActiveKey="text"
+        activeKey={activeTab}
+        onChange={handleTabChange}
+        tabBarGutter={8}
+        size="small"
+        tabBarStyle={{ marginBottom: 8, minHeight: 32 }}
+        items={[
+          {
+            key: 'text',
+            label: (
+              <span>
+                <FontColorsOutlined 
+                  style={{ color: activeStyles.textColor || undefined }}
+                />
+                <span style={{ marginLeft: 4 }}>Text</span>
+              </span>
+            ),
+            children: (
+              <div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: "8px" }}>
+                  {colorOptions.map((option) => (
+                    <div
+                      key={option.color}
+                      onClick={() => applyTextColor(option.color)}
+                      style={{
+                        width: 30,
+                        height: 30,
+                        borderRadius: 4,
+                        cursor: 'pointer',
+                        backgroundColor: option.color,
+                        border: '1px solid #d9d9d9',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        boxShadow: activeStyles.textColor === option.color ? '0 0 0 2px #1890ff' : 'none'
+                      }}
+                      title={option.label}
+                    />
+                  ))}
+                </div>
+                
+                {/* Clear button to reset text color */}
+                <div style={{ marginTop: 8, display: "flex", justifyContent: "flex-end", paddingRight: 8 }}>
+                  <Button 
+                    size="small" 
+                    onClick={() => {
+                      editor.removeStyles(["textColor"]);
+                      setColorPickerVisible(false); // Close the menu after clearing color
+                    }}
+                  >
+                    Clear
+                  </Button>
+                </div>
               </div>
-            </Tooltip>
-          ))}
-        </div>
-      </div>
-      
-      <div>
-        <div style={{ fontWeight: 500, marginBottom: 5 }}>Background Color</div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-          {colorOptions.map((option) => (
-            <Tooltip key={`bg-${option.color}`} title={option.label}>
-              <div 
-                onClick={() => applyBackgroundColor(option.color)}
-                style={{
-                  width: 24,
-                  height: 24,
-                  borderRadius: 4,
-                  cursor: 'pointer',
-                  backgroundColor: option.color === 'default' ? '#ffffff' : option.color,
-                  border: '1px solid #d9d9d9',
-                  boxShadow: getActiveBackgroundColor() === option.color ? '0 0 0 2px #1890ff' : 'none'
-                }}
-              />
-            </Tooltip>
-          ))}
-        </div>
-      </div>
+            ),
+          },
+          {
+            key: 'background',
+            label: (
+              <span>
+                <BgColorsOutlined 
+                  style={{ color: activeStyles.backgroundColor || undefined }}
+                />
+                <span style={{ marginLeft: 4 }}>Background</span>
+              </span>
+            ),
+            children: (
+              <div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: "8px" }}>
+                  {colorOptions.map((option) => (
+                    <div
+                      key={option.color}
+                      onClick={() => applyBackgroundColor(option.color)}
+                      style={{
+                        width: 30,
+                        height: 30,
+                        borderRadius: 4,
+                        cursor: 'pointer',
+                        backgroundColor: option.color,
+                        border: '1px solid #d9d9d9',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        boxShadow: activeStyles.backgroundColor === option.color ? '0 0 0 2px #1890ff' : 'none'
+                      }}
+                      title={option.label}
+                    />
+                  ))}
+                </div>
+                
+                {/* Clear button to reset background color */}
+                <div style={{ marginTop: 8, display: "flex", justifyContent: "flex-end", paddingRight: 8 }}>
+                  <Button 
+                    size="small" 
+                    onClick={() => {
+                      editor.removeStyles(["backgroundColor"]);
+                      setColorPickerVisible(false); // Close the menu after clearing color
+                    }}
+                  >
+                    Clear
+                  </Button>
+                </div>
+              </div>
+            ),
+          },
+        ]}
+      />
     </div>
   );
 
@@ -361,7 +403,7 @@ export const ConfluenceToolbar = ({ editor }) => {
         
         <Tooltip title="Bold (Ctrl+B)" placement="bottom">
           <Button
-            type={isStyleActive("bold") ? "primary" : "text"}
+            type={isButtonActive("bold") ? "primary" : "text"}
             icon={<BoldOutlined />}
             onClick={() => applyFormat("bold")}
             className="modern-action-icon"
@@ -370,7 +412,7 @@ export const ConfluenceToolbar = ({ editor }) => {
         
         <Tooltip title="Italic (Ctrl+I)" placement="bottom">
           <Button
-            type={isStyleActive("italic") ? "primary" : "text"}
+            type={isButtonActive("italic") ? "primary" : "text"}
             icon={<ItalicOutlined />}
             onClick={() => applyFormat("italic")}
             className="modern-action-icon"
@@ -379,7 +421,7 @@ export const ConfluenceToolbar = ({ editor }) => {
         
         <Tooltip title="Underline (Ctrl+U)" placement="bottom">
           <Button
-            type={isStyleActive("underline") ? "primary" : "text"}
+            type={isButtonActive("underline") ? "primary" : "text"}
             icon={<UnderlineOutlined />}
             onClick={() => applyFormat("underline")}
             className="modern-action-icon"
@@ -388,7 +430,7 @@ export const ConfluenceToolbar = ({ editor }) => {
         
         <Tooltip title="Strikethrough" placement="bottom">
           <Button
-            type={isStyleActive("strike") ? "primary" : "text"}
+            type={isButtonActive("strike") ? "primary" : "text"}
             icon={<StrikethroughOutlined />}
             onClick={() => applyFormat("strike")}
             className="modern-action-icon"
@@ -397,26 +439,37 @@ export const ConfluenceToolbar = ({ editor }) => {
         
         <Tooltip title="Link (Ctrl+K)" placement="bottom">
           <Button
-            type={isStyleActive("link") ? "primary" : "text"}
+            type={isButtonActive("link") ? "primary" : "text"}
             icon={<LinkOutlined />}
             onClick={() => applyFormat("link")}
             className="modern-action-icon"
           />
         </Tooltip>
         
-        {/* Add Color Picker Button */}
+        {/* Color Picker with Tabs */}
         <Popover
           content={colorPickerContent}
           trigger="click"
-          visible={colorPickerVisible}
-          onVisibleChange={setColorPickerVisible}
+          open={colorPickerVisible}
+          onOpenChange={setColorPickerVisible}
           placement="bottom"
-          overlayClassName="color-picker-popover"
         >
           <Tooltip title="Text and Background Color" placement="bottom">
             <Button
-              type={(getActiveTextColor() || getActiveBackgroundColor()) ? "primary" : "text"}
-              icon={<FontColorsOutlined />}
+              type="text"
+              icon={
+                <span style={{ display: "flex", alignItems: "center" }}>
+                  {activeStyles.textColor && (
+                    <FontColorsOutlined style={{ color: activeStyles.textColor }} />
+                  )}
+                  {!activeStyles.textColor && activeStyles.backgroundColor && (
+                    <BgColorsOutlined style={{ color: activeStyles.backgroundColor }} />
+                  )}
+                  {!activeStyles.textColor && !activeStyles.backgroundColor && (
+                    <FontColorsOutlined />
+                  )}
+                </span>
+              }
               className="modern-action-icon"
             />
           </Tooltip>
@@ -446,7 +499,7 @@ export const ConfluenceToolbar = ({ editor }) => {
         
         <Tooltip title="Code" placement="bottom">
           <Button
-            type={isStyleActive("code") ? "primary" : "text"}
+            type={isButtonActive("code") ? "primary" : "text"}
             icon={<CodeOutlined />}
             onClick={() => applyFormat("code")}
             className="modern-action-icon"

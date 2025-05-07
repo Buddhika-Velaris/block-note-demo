@@ -8,26 +8,35 @@ import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
-  FormattingToolbarController,
+  BasicTextStyleButton,
   SuggestionMenuController,
-  blockTypeSelectItems,
+  BlockTypeSelect,
+  ColorStyleButton,
+  CreateLinkButton,
+  FileCaptionButton,
+  FileReplaceButton,
+  FormattingToolbar,
+  FormattingToolbarController,
+  NestBlockButton,
+  TextAlignButton,
+  UnnestBlockButton,
   getDefaultReactSlashMenuItems,
   useCreateBlockNote,
-  FormattingToolbar,
 } from "@blocknote/react";
 import { Button, Modal, Input, Space } from "antd";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { RiAlertFill, RiChat3Fill } from "react-icons/ri";
 import { Alert } from "./Alert.jsx";
 import { DialogBlock } from "./components/DialogBlock.jsx";
 import { H4Block } from "./components/H4Block.jsx";
 import { ConfluenceToolbar } from "./components/ConfluenceToolbar.jsx";
- 
+import { ColorButton } from "./components/BluteButton.jsx";
+
 
 async function uploadFile(file) {
   const body = new FormData();
   body.append("file", file);
- 
+
   const ret = await fetch("https://tmpfiles.org/api/v1/upload", {
     method: "POST",
     body: body,
@@ -51,7 +60,7 @@ const schema = BlockNoteSchema.create({
     h4: H4Block,
   },
 });
- 
+
 // Slash menu item to insert an Alert block
 const insertAlert = (editor) => ({
   title: "Yasige Alert 🐒",
@@ -110,9 +119,9 @@ const insertH4 = (editor) => ({
     }),
   aliases: ["h4", "heading4", "heading", "title"],
   group: "Headings",
-  icon: <span style={{fontWeight:700}}>H4</span>,
+  icon: <span style={{ fontWeight: 700 }}>H4</span>,
 });
- 
+
 export default function App() {
   // State for the top dialog box
   const [dialogOpened, setDialogOpened] = useState(false);
@@ -121,10 +130,31 @@ export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     schema,
+    // Initial content with a mix of formatted and unformatted text
     initialContent: [
       {
         type: "paragraph",
         content: "Welcome to this demo!",
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "This text has ",
+            styles: {}
+          },
+          {
+            type: "text",
+            text: "bold",
+            styles: { bold: true }
+          },
+          {
+            type: "text",
+            text: " formatting. Try clicking after this text and typing to maintain the bold style.",
+            styles: {}
+          }
+        ]
       },
       {
         type: "alert",
@@ -149,11 +179,34 @@ export default function App() {
       },
       {
         type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Each block can have its own ",
+            styles: {}
+          },
+          {
+            type: "text",
+            text: "formatting styles",
+            styles: { italic: true, textColor: "blue" }
+          },
+          {
+            type: "text",
+            text: " that are tracked independently.",
+            styles: {}
+          }
+        ]
       },
     ],
     uploadFile,
   });
-  
+
+  // Handle selection changes to ensure proper focus
+  const handleSelectionChange = () => {
+    // This helps ensure the toolbar reflects the correct formatting of the current block
+    editor.focus();
+  };
+
   // Function to insert text from the top dialog into the editor
   const insertTextFromDialog = () => {
     if (inputText.trim()) {
@@ -177,47 +230,76 @@ export default function App() {
       setDialogOpened(false);
     }
   };
- 
+
   // Renders the editor instance.
   return (
     <div className="editor-container">
       <div className="editor-with-toolbar">
         {/* Confluence-style toolbar */}
         <ConfluenceToolbar editor={editor} />
-        
-        <BlockNoteView editor={editor} formattingToolbar={false} slashMenu={false} data-color-scheme="bw">
+
+        <BlockNoteView 
+          editor={editor} 
+          formattingToolbar={false} 
+          slashMenu={false} 
+          data-color-scheme="bw"
+          onSelectionChange={handleSelectionChange} // Added the recommended onSelectionChange prop
+        >
           {/* Replaces the default Formatting Toolbar */}
           <FormattingToolbarController
             formattingToolbar={() => (
               // Uses the default Formatting Toolbar.
-              <FormattingToolbar
-                // Sets the items in the Block Type Select.
-                blockTypeSelectItems={[
-                  // Gets the default Block Type Select items.
-                  ...blockTypeSelectItems(editor.dictionary),
-                  // Adds an item for the Alert block.
-                  {
-                    name: "Alert",
-                    type: "alert",
-                    icon: RiAlertFill,
-                    isSelected: (block) => block.type === "alert",
-                  },
-                  // Adds an item for the Dialog block
-                  {
-                    name: "Dialog",
-                    type: "dialog",
-                    icon: RiChat3Fill,
-                    isSelected: (block) => block.type === "dialog",
-                  },
-                  // Adds an item for the H4 block
-                  {
-                    name: "Heading 4",
-                    type: "h4",
-                    icon: () => <span style={{fontWeight:700}}>H4</span>,
-                    isSelected: (block) => block.type === "h4",
-                  }
-                ]}
-              />
+              <FormattingToolbar>
+                <BlockTypeSelect key={"blockTypeSelect"} />
+
+                {/* Color button with multiple color options */}
+                <ColorButton key={"customButton"} />
+
+                <FileCaptionButton key={"fileCaptionButton"} />
+                <FileReplaceButton key={"replaceFileButton"} />
+
+                <BasicTextStyleButton
+                  basicTextStyle={"bold"}
+                  key={"boldStyleButton"}
+                />
+                <BasicTextStyleButton
+                  basicTextStyle={"italic"}
+                  key={"italicStyleButton"}
+                />
+                <BasicTextStyleButton
+                  basicTextStyle={"underline"}
+                  key={"underlineStyleButton"}
+                />
+                <BasicTextStyleButton
+                  basicTextStyle={"strike"}
+                  key={"strikeStyleButton"}
+                />
+                {/* Extra button to toggle code styles */}
+                <BasicTextStyleButton
+                  key={"codeStyleButton"}
+                  basicTextStyle={"code"}
+                />
+
+                <TextAlignButton
+                  textAlignment={"left"}
+                  key={"textAlignLeftButton"}
+                />
+                <TextAlignButton
+                  textAlignment={"center"}
+                  key={"textAlignCenterButton"}
+                />
+                <TextAlignButton
+                  textAlignment={"right"}
+                  key={"textAlignRightButton"}
+                />
+
+                <ColorStyleButton key={"colorStyleButton"} />
+
+                <NestBlockButton key={"nestBlockButton"} />
+                <UnnestBlockButton key={"unnestBlockButton"} />
+
+                <CreateLinkButton key={"createLinkButton"} />
+              </FormattingToolbar>
             )}
           />
           {/* Replaces the default Slash Menu. */}
@@ -237,7 +319,7 @@ export default function App() {
               defaultItems.splice(lastHeadingBlockIndex + 1, 1, insertH4(editor));
               defaultItems.splice(lastBasicBlockIndex + 1, 0, insertAlert(editor));
               defaultItems.splice(lastBasicBlockIndex + 0, 0, insertDialog(editor));
-     
+
               // Returns filtered items based on the query.
               return filterSuggestionItems(defaultItems, query);
             }}
