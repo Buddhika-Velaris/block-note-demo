@@ -5,10 +5,10 @@ import {
   } from "@blocknote/react";
   import "@blocknote/mantine/style.css";
   import { useState } from "react";
-  import { Popover, Button, Tabs } from "antd";
+  import { Popover, Tabs } from "antd";
   import { BgColorsOutlined, FontColorsOutlined } from "@ant-design/icons";
 
-// Define available colors
+
 const colorOptions = [
   { color: "blue", label: "Blue" },
   { color: "red", label: "Red" },
@@ -25,17 +25,16 @@ export function ColorButton() {
     const editor = useBlockNoteEditor();
     const Components = useComponentsContext();
     const [popoverVisible, setPopoverVisible] = useState(false);
-   
-    // Track active colors
+
     const [activeTextColor, setActiveTextColor] = useState(null);
     const [activeBackgroundColor, setActiveBackgroundColor] = useState(null);
    
+
+    const selectedText = editor.getSelectedText();
     // Updates state on content or selection change
     useEditorContentOrSelectionChange(() => {
       const styles = editor.getActiveStyles();
-      // Check for active text color
       setActiveTextColor(styles.textColor || null);
-      // Check for active background color
       setActiveBackgroundColor(styles.backgroundColor || null);
     }, editor);
     
@@ -44,7 +43,7 @@ export function ColorButton() {
       editor.toggleStyles({
         textColor: color,
       });
-      setPopoverVisible(false); // Close the menu after applying color
+      setPopoverVisible(false);
     };
     
     // Apply background color and close menu
@@ -52,9 +51,10 @@ export function ColorButton() {
       editor.toggleStyles({
         backgroundColor: color,
       });
-      setPopoverVisible(false); // Close the menu after applying color
+      setPopoverVisible(false);
     };
-    
+
+
     // Color picker content
     const colorPickerContent = (
       <div style={{ width: 250 }}>
@@ -93,18 +93,7 @@ export function ColorButton() {
                     ))}
                   </div>
                   
-                  {/* Clear button to reset text color */}
-                  <div style={{ marginTop: 8, display: "flex", justifyContent: "flex-end", paddingRight: 8 }}>
-                    <Button 
-                      size="small" 
-                      onClick={() => {
-                        editor.removeStyles(["textColor"]);
-                        setPopoverVisible(false); // Close the menu after clearing color
-                      }}
-                    >
-                      Clear
-                    </Button>
-                  </div>
+                  
                 </div>
               ),
             },
@@ -140,18 +129,7 @@ export function ColorButton() {
                     ))}
                   </div>
                   
-                  {/* Clear button to reset background color */}
-                  <div style={{ marginTop: 8, display: "flex", justifyContent: "flex-end", paddingRight: 8 }}>
-                    <Button 
-                      size="small" 
-                      onClick={() => {
-                        editor.removeStyles(["backgroundColor"]);
-                        setPopoverVisible(false); // Close the menu after clearing color
-                      }}
-                    >
-                      Clear
-                    </Button>
-                  </div>
+                 
                 </div>
               ),
             },
@@ -160,6 +138,12 @@ export function ColorButton() {
       </div>
     );
    
+
+    if(!selectedText) {
+      return;
+    }
+    
+    
     return (
       <Components.FormattingToolbar.Button
         mainTooltip={"Color Options"}

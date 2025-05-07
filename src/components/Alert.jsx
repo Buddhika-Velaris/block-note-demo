@@ -8,7 +8,7 @@ import {
   CheckCircleOutlined 
 } from "@ant-design/icons";
  
-import "./App.css";
+import "../App.css";
  
 // The types of alerts that users can choose from.
 export const alertTypes = [
@@ -74,27 +74,31 @@ export const Alert = createReactBlockSpec(
         (a) => a.value === props.block.props.type
       );
       const IconComponent = alertType.icon;
-      
-      // Define menu items for the dropdown
-      const menu = (
-        <Menu
-          items={alertTypes.map((type) => ({
-            key: type.value,
-            icon: <type.icon style={{ color: type.color }} />,
-            label: type.title,
-            onClick: () => 
-              props.editor.updateBlock(props.block, {
-                type: "alert",
-                props: { type: type.value },
-              })
-          }))}
-        />
-      );
+
+      const items = alertTypes.map((type) => ({
+        key: type.value,
+        icon: <type.icon style={{ color: type.color }} />,
+        label: type.title,
+        onClick: () => 
+          props.editor.updateBlock(props.block, {
+            type: "alert",
+            props: { type: type.value },
+          })
+      }));
+
+      const textColor = (() => {
+        switch(props.block.props.type) {
+          case "warning": return "#faad14";
+          case "error": return "#ff4d4f";
+          case "info": return "#1890ff";
+          case "success": return "#52c41a";
+          default: return "#faad14";
+        }
+      })();
 
       return (
         <div className={"alert"} data-alert-type={props.block.props.type}>
-          {/*Icon which opens a menu to choose the Alert type*/}
-          <Dropdown overlay={menu} trigger={['click']} placement="bottomLeft">
+          <Dropdown menu={{ items }} trigger={['click']} placement="bottomLeft">
             <div className={"alert-icon-wrapper"} contentEditable={false}>
               <IconComponent
                 className={"alert-icon"}
@@ -103,8 +107,11 @@ export const Alert = createReactBlockSpec(
               />
             </div>
           </Dropdown>
-          {/*Rich text field for user to type in*/}
-          <div className={"inline-content"} ref={props.contentRef} />
+          <div 
+            className={"inline-content"} 
+            ref={props.contentRef}
+            style={{ color: textColor }} 
+          />
         </div>
       );
     },

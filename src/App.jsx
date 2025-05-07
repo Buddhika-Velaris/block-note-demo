@@ -23,40 +23,29 @@ import {
   getDefaultReactSlashMenuItems,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { Button, Modal, Input, Space } from "antd";
-import { useState, useEffect } from "react";
 import { RiAlertFill, RiChat3Fill } from "react-icons/ri";
-import { Alert } from "./Alert.jsx";
+import { Alert } from "./components/Alert.jsx";
 import { DialogBlock } from "./components/DialogBlock.jsx";
 import { H4Block } from "./components/H4Block.jsx";
 import { ConfluenceToolbar } from "./components/ConfluenceToolbar.jsx";
-import { ColorButton } from "./components/BluteButton.jsx";
+import { ColorButton } from "./components/ColorSwitch.jsx";
 
 
 async function uploadFile(file) {
-  const body = new FormData();
-  body.append("file", file);
+  const blob = new Blob([file], { type: file.type });
+  
+  const blobUrl = URL.createObjectURL(blob);
 
-  const ret = await fetch("https://tmpfiles.org/api/v1/upload", {
-    method: "POST",
-    body: body,
-  });
-  return (await ret.json()).data.url.replace(
-    "tmpfiles.org/",
-    "tmpfiles.org/dl/"
-  );
+  return blobUrl;
 }
-// Our schema with block specs, which contain the configs and implementations for
+
+// contain the configs and implementations for
 // blocks that we want our editor to use.
 const schema = BlockNoteSchema.create({
   blockSpecs: {
-    // Adds all default blocks.
     ...defaultBlockSpecs,
-    // Adds the Alert block.
     alert: Alert,
-    // Adds the Dialog block
     dialog: DialogBlock,
-    // Adds the H4 block
     h4: H4Block,
   },
 });
@@ -68,20 +57,10 @@ const insertAlert = (editor) => ({
   onItemClick: () =>
     // If the block containing the text caret is empty, `insertOrUpdateBlock`
     // changes its type to the provided block. Otherwise, it inserts the new
-    // block below and moves the text caret to it. We use this function with an
-    // Alert block.
+    // block below and moves the text caret to it.
     insertOrUpdateBlock(editor, {
       type: "alert",
     }),
-  aliases: [
-    "alert",
-    "notification",
-    "emphasize",
-    "warning",
-    "error",
-    "info",
-    "success",
-  ],
   group: "Basic blocks",
   icon: <RiAlertFill />,
 });
@@ -98,13 +77,6 @@ const insertDialog = (editor) => ({
         dialogText: "",
       }
     }),
-  aliases: [
-    "dialog",
-    "input",
-    "form",
-    "text input",
-    "modal",
-  ],
   group: "Basic blocks",
   icon: <RiChat3Fill />,
 });
@@ -123,14 +95,10 @@ const insertH4 = (editor) => ({
 });
 
 export default function App() {
-  // State for the top dialog box
-  const [dialogOpened, setDialogOpened] = useState(false);
-  const [inputText, setInputText] = useState("");
 
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     schema,
-    // Initial content with a mix of formatted and unformatted text
     initialContent: [
       {
         type: "paragraph",
@@ -203,39 +171,12 @@ export default function App() {
 
   // Handle selection changes to ensure proper focus
   const handleSelectionChange = () => {
-    // This helps ensure the toolbar reflects the correct formatting of the current block
     editor.focus();
   };
 
-  // Function to insert text from the top dialog into the editor
-  const insertTextFromDialog = () => {
-    if (inputText.trim()) {
-      editor.insertBlocks(
-        [
-          {
-            type: "paragraph",
-            content: [
-              {
-                type: "text",
-                text: inputText,
-                styles: {}
-              }
-            ]
-          }
-        ],
-        editor.getTextCursorPosition().block,
-        "before"
-      );
-      setInputText("");
-      setDialogOpened(false);
-    }
-  };
-
-  // Renders the editor instance.
   return (
     <div className="editor-container">
       <div className="editor-with-toolbar">
-        {/* Confluence-style toolbar */}
         <ConfluenceToolbar editor={editor} />
 
         <div className="editor-content">
@@ -244,16 +185,13 @@ export default function App() {
             formattingToolbar={false} 
             slashMenu={false} 
             data-color-scheme="bw"
-            onSelectionChange={handleSelectionChange} // Added the recommended onSelectionChange prop
+            onSelectionChange={handleSelectionChange}
           >
             {/* Replaces the default Formatting Toolbar */}
             <FormattingToolbarController
               formattingToolbar={() => (
-                // Uses the default Formatting Toolbar.
                 <FormattingToolbar>
                   <BlockTypeSelect key={"blockTypeSelect"} />
-
-                  {/* Color button with multiple color options */}
                   <ColorButton key={"customButton"} />
 
                   <FileCaptionButton key={"fileCaptionButton"} />
@@ -275,7 +213,6 @@ export default function App() {
                     basicTextStyle={"strike"}
                     key={"strikeStyleButton"}
                   />
-                  {/* Extra button to toggle code styles */}
                   <BasicTextStyleButton
                     key={"codeStyleButton"}
                     basicTextStyle={"code"}
@@ -294,8 +231,6 @@ export default function App() {
                     key={"textAlignRightButton"}
                   />
 
-                  <ColorStyleButton key={"colorStyleButton"} />
-
                   <NestBlockButton key={"nestBlockButton"} />
                   <UnnestBlockButton key={"unnestBlockButton"} />
 
@@ -307,21 +242,18 @@ export default function App() {
             <SuggestionMenuController
               triggerCharacter={"/"}
               getItems={async (query) => {
-                // Gets all default slash menu items.
                 const defaultItems = getDefaultReactSlashMenuItems(editor);
-                // Finds index of last item in "Basic blocks" group.
                 const lastBasicBlockIndex = defaultItems.findLastIndex(
                   (item) => item.group === "Basic blocks"
                 );
                 const lastHeadingBlockIndex = defaultItems.findLastIndex(
                   (item) => item.group === "Headings"
                 );
-                // Inserts the Alert, Dialog, and H4 items
+ 
                 defaultItems.splice(lastHeadingBlockIndex + 1, 1, insertH4(editor));
                 defaultItems.splice(lastBasicBlockIndex + 1, 0, insertAlert(editor));
                 defaultItems.splice(lastBasicBlockIndex + 0, 0, insertDialog(editor));
 
-                // Returns filtered items based on the query.
                 return filterSuggestionItems(defaultItems, query);
               }}
             />
