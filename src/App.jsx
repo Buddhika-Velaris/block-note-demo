@@ -179,11 +179,7 @@ export default function App() {
         },
         content: [],
       },
-      {
-        type: "paragraph",
-        content:
-          "Or select some text to see the blocks in the Formatting Toolbar's Block Type Select",
-      },
+     
       {
         type: "paragraph",
         content: [

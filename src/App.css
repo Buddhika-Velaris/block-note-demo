@@ -190,7 +190,7 @@ Black and White Theme
 .editor-container {
   display: flex;
   flex-direction: column;
-  /* width: 768px; */
+  width: 768px;
   max-width: 100%;
   margin: 0 auto;
   height: 100vh; /* Set container height to full viewport height */
