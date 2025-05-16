@@ -1,6 +1,6 @@
 import { defaultProps } from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
-import { Dropdown, Menu } from "antd";
+import { Dropdown } from "antd";
 import { 
   WarningOutlined, 
   CloseCircleOutlined, 

@@ -1,5 +1,5 @@
 import { Button, Dropdown, Tooltip, Menu, Divider, Upload, Popover, Tabs } from "antd";
-import { useState, useRef, useEffect } from "react";
+import { useState} from "react";
 import {
   BoldOutlined,
   ItalicOutlined,
@@ -39,30 +39,22 @@ const colorOptions = [
 ];
 
 export const ConfluenceToolbar = ({ editor }) => {
-  const [blockType, setBlockType] = useState("paragraph");
-  const [isImageUploading, setIsImageUploading] = useState(false);
+  const [_, setBlockType] = useState("paragraph");
+  // const [isImageUploading, setIsImageUploading] = useState(false);
   const [colorPickerVisible, setColorPickerVisible] = useState(false);
   const [activeTab, setActiveTab] = useState("text");
   
   // Use our block format tracker hook
   const {
     activeStyles,
-    blockStyles,
-    activeBlockId,
     applyStyle,
-    getBlockStyle,
-    isStyleActive,
-    isButtonActive, // Using the new function for temporary button state
-    insertFormattedText
+    isButtonActive,
   } = useBlockFormatTracker(editor);
   
   // Format options for block types
   const formatOptions = [
     { value: "paragraph", label: "Normal text" },
-    { value: "heading", label: "Heading 1" },
-    { value: "h2", label: "Heading 2" },
-    { value: "h3", label: "Heading 3" },
-    { value: "h4", label: "Heading 4" },
+
     { value: "codeBlock", label: "Code block" },
     { value: "bulletListItem", label: "Bullet list" },
     { value: "numberedListItem", label: "Numbered list" },
@@ -100,39 +92,39 @@ export const ConfluenceToolbar = ({ editor }) => {
   };
 
   // Handle image upload
-  const handleImageUpload = async (file) => {
-    if (!file || !editor) return false;
+  // const handleImageUpload = async (file) => {
+  //   if (!file || !editor) return false;
     
-    try {
-      setIsImageUploading(true);
-      // Upload using the editor's upload function
-      const url = await editor.uploadFile(file);
+  //   try {
+  //     setIsImageUploading(true);
+  //     // Upload using the editor's upload function
+  //     const url = await editor.uploadFile(file);
       
-      // Insert the image at the current cursor position
-      if (url) {
-        editor.insertBlocks(
-          [
-            {
-              type: "image",
-              props: {
-                url,
-                caption: file.name,
-                width: "100%",
-              },
-            },
-          ],
-          editor.getTextCursorPosition().block,
-          "after"
-        );
-      }
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      // You could show an error notification here
-    } finally {
-      setIsImageUploading(false);
-    }
-    return false; // Prevent default upload behavior
-  };
+  //     // Insert the image at the current cursor position
+  //     if (url) {
+  //       editor.insertBlocks(
+  //         [
+  //           {
+  //             type: "image",
+  //             props: {
+  //               url,
+  //               caption: file.name,
+  //               width: "100%",
+  //             },
+  //           },
+  //         ],
+  //         editor.getTextCursorPosition().block,
+  //         "after"
+  //       );
+  //     }
+  //   } catch (error) {
+  //     console.error("Error uploading image:", error);
+  //     // You could show an error notification here
+  //   } finally {
+  //     setIsImageUploading(false);
+  //   }
+  //   return false; // Prevent default upload behavior
+  // };
 
   // Apply text formatting
   const applyFormat = (format) => {
@@ -154,15 +146,15 @@ export const ConfluenceToolbar = ({ editor }) => {
       case "code":
         applyStyle('code');
         break;
-      case "link":
-        // Get selected text
-        const selection = editor.getSelectedText();
-        // Show link dialog in production app
-        const url = prompt("Enter URL:", "https://");
-        if (url) {
-          applyStyle('link', url);
-        }
-        break;
+      // case "link":
+      //   // Get selected text
+      //   const selection = editor.getSelectedText();
+      //   // Show link dialog in production app
+      //   const url = prompt("Enter URL:", "https://");
+      //   if (url) {
+      //     applyStyle('link', url);
+      //   }
+      //   break;
       case "bulletList":
         editor.updateBlock(editor.getTextCursorPosition().block, {
           type: "bulletListItem",
@@ -173,34 +165,34 @@ export const ConfluenceToolbar = ({ editor }) => {
           type: "numberedListItem",
         });
         break;
-      case "table":
+      // case "table":
         // Insert a simple 2x2 table
-        editor.insertBlocks(
-          [
-            {
-              type: "table",
-              content: [
-                {
-                  type: "tableRow",
-                  content: [
-                    { type: "tableCell", content: [{ type: "paragraph", content: "Header 1" }] },
-                    { type: "tableCell", content: [{ type: "paragraph", content: "Header 2" }] },
-                  ],
-                },
-                {
-                  type: "tableRow",
-                  content: [
-                    { type: "tableCell", content: [{ type: "paragraph", content: "Cell 1" }] },
-                    { type: "tableCell", content: [{ type: "paragraph", content: "Cell 2" }] },
-                  ],
-                },
-              ],
-            },
-          ],
-          editor.getTextCursorPosition().block,
-          "after"
-        );
-        break;
+        // editor.insertBlocks(
+        //   [
+        //     {
+        //       type: "table",
+        //       content: [
+        //         {
+        //           type: "tableRow",
+        //           content: [
+        //             { type: "tableCell", content: [{ type: "paragraph", content: "Header 1" }] },
+        //             { type: "tableCell", content: [{ type: "paragraph", content: "Header 2" }] },
+        //           ],
+        //         },
+        //         {
+        //           type: "tableRow",
+        //           content: [
+        //             { type: "tableCell", content: [{ type: "paragraph", content: "Cell 1" }] },
+        //             { type: "tableCell", content: [{ type: "paragraph", content: "Cell 2" }] },
+        //           ],
+        //         },
+        //       ],
+        //     },
+        //   ],
+        //   editor.getTextCursorPosition().block,
+        //   "after"
+        // );
+        // break;
       default:
         break;
     }
@@ -227,49 +219,49 @@ export const ConfluenceToolbar = ({ editor }) => {
   );
 
   // More options menu
-  const moreMenu = (
-    <Menu
-      items={[
-        {
-          key: 'formatting',
-          type: 'group',
-          label: 'Additional Formatting',
-          children: [
-            {
-              key: 'align-left',
-              icon: <AlignLeftOutlined />,
-              label: 'Align Left',
-            },
-            {
-              key: 'align-center',
-              icon: <AlignCenterOutlined />,
-              label: 'Align Center',
-            },
-            {
-              key: 'align-right',
-              icon: <AlignRightOutlined />,
-              label: 'Align Right',
-            },
-          ],
-        },
-        {
-          type: 'divider',
-        },
-        {
-          key: 'advanced',
-          type: 'group',
-          label: 'Advanced',
-          children: [
-            {
-              key: 'insert-column',
-              icon: <ColumnWidthOutlined />,
-              label: 'Insert Column',
-            },
-          ],
-        },
-      ]}
-    />
-  );
+  // const moreMenu = (
+  //   <Menu
+  //     items={[
+  //       {
+  //         key: 'formatting',
+  //         type: 'group',
+  //         label: 'Additional Formatting',
+  //         children: [
+  //           {
+  //             key: 'align-left',
+  //             icon: <AlignLeftOutlined />,
+  //             label: 'Align Left',
+  //           },
+  //           {
+  //             key: 'align-center',
+  //             icon: <AlignCenterOutlined />,
+  //             label: 'Align Center',
+  //           },
+  //           {
+  //             key: 'align-right',
+  //             icon: <AlignRightOutlined />,
+  //             label: 'Align Right',
+  //           },
+  //         ],
+  //       },
+  //       {
+  //         type: 'divider',
+  //       },
+  //       {
+  //         key: 'advanced',
+  //         type: 'group',
+  //         label: 'Advanced',
+  //         children: [
+  //           {
+  //             key: 'insert-column',
+  //             icon: <ColumnWidthOutlined />,
+  //             label: 'Insert Column',
+  //           },
+  //         ],
+  //       },
+  //     ]}
+  //   />
+  // );
   
   // Color picker content with tabs and color swatches
   const colorPickerContent = (
@@ -437,14 +429,14 @@ export const ConfluenceToolbar = ({ editor }) => {
           />
         </Tooltip>
         
-        <Tooltip title="Link (Ctrl+K)" placement="bottom">
+        {/* <Tooltip title="Link (Ctrl+K)" placement="bottom">
           <Button
             type={isButtonActive("link") ? "primary" : "text"}
             icon={<LinkOutlined />}
             onClick={() => applyFormat("link")}
             className="modern-action-icon"
           />
-        </Tooltip>
+        </Tooltip> */}
         
         {/* Color Picker with Tabs */}
         <Popover
@@ -497,7 +489,7 @@ export const ConfluenceToolbar = ({ editor }) => {
         
         <Divider type="vertical" className="toolbar-divider" />
         
-        <Tooltip title="Code" placement="bottom">
+        {/* <Tooltip title="Code" placement="bottom">
           <Button
             type={isButtonActive("code") ? "primary" : "text"}
             icon={<CodeOutlined />}
@@ -505,8 +497,8 @@ export const ConfluenceToolbar = ({ editor }) => {
             className="modern-action-icon"
           />
         </Tooltip>
-        
-        <Upload
+         */}
+        {/* <Upload
           accept="image/png,image/jpeg,image/gif,image/webp"
           showUploadList={false}
           customRequest={({ file }) => handleImageUpload(file)}
@@ -520,32 +512,32 @@ export const ConfluenceToolbar = ({ editor }) => {
               className="modern-action-icon"
             />
           </Tooltip>
-        </Upload>
+        </Upload> */}
         
-        <Tooltip title="Insert table" placement="bottom">
+        {/* <Tooltip title="Insert table" placement="bottom">
           <Button
             type="text"
             icon={<TableOutlined />}
             onClick={() => applyFormat("table")}
             className="modern-action-icon"
           />
-        </Tooltip>
+        </Tooltip> */}
         
-        <Tooltip title="Insert emoji" placement="bottom">
+        {/* <Tooltip title="Insert emoji" placement="bottom">
           <Button
             type="text"
             icon={<SmileOutlined />}
             className="modern-action-icon"
           />
-        </Tooltip>
+        </Tooltip> */}
         
-        <Dropdown overlay={moreMenu} trigger={['click']} placement="bottomRight">
+        {/* <Dropdown overlay={moreMenu} trigger={['click']} placement="bottomRight">
           <Button
             type="text"
             icon={<MoreOutlined />}
             className="modern-action-icon"
           />
-        </Dropdown>
+        </Dropdown> */}
       </div>
     </div>
   );

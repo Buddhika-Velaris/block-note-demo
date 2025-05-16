@@ -1,12 +1,13 @@
 import {
   BlockNoteSchema,
   defaultBlockSpecs,
+  defaultInlineContentSpecs,
   filterSuggestionItems,
   insertOrUpdateBlock,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
+import { codeBlock } from "@blocknote/code-block";
 import {
   BasicTextStyleButton,
   SuggestionMenuController,
@@ -22,6 +23,10 @@ import {
   UnnestBlockButton,
   getDefaultReactSlashMenuItems,
   useCreateBlockNote,
+  DragHandleMenu,
+  RemoveBlockItem,
+  SideMenuController,
+  SideMenu,
 } from "@blocknote/react";
 import { RiAlertFill, RiChat3Fill } from "react-icons/ri";
 import { Alert } from "./components/Alert.jsx";
@@ -29,6 +34,7 @@ import { DialogBlock } from "./components/DialogBlock.jsx";
 import { H4Block } from "./components/H4Block.jsx";
 import { ConfluenceToolbar } from "./components/ConfluenceToolbar.jsx";
 import { ColorButton } from "./components/ColorSwitch.jsx";
+import  {Mention} from "./components/Mention.jsx";
 
 
 async function uploadFile(file) {
@@ -48,8 +54,40 @@ const schema = BlockNoteSchema.create({
     dialog: DialogBlock,
     h4: H4Block,
   },
+  inlineContentSpecs: {
+    ...defaultInlineContentSpecs,
+    mention: Mention,
+  },
 });
 
+
+const CustomDragHandleMenu = (props) => (
+  <DragHandleMenu {...props}>
+    <RemoveBlockItem {...props}>Delete</RemoveBlockItem>
+  </DragHandleMenu>
+);
+
+// Function which gets all users for the mentions menu.
+const getMentionMenuItems = (
+  editor
+) => {
+  const users = ["Steve", "Bob", "Joe", "Mike"];
+ 
+  return users.map((user) => ({
+    title: user,
+    onItemClick: () => {
+      editor.insertInlineContent([
+        {
+          type: "mention",
+          props: {
+            user,
+          },
+        },
+        " ",
+      ]);
+    },
+  }));
+};
 // Slash menu item to insert an Alert block
 const insertAlert = (editor) => ({
   title: "Yasige Alert 🐒",
@@ -99,6 +137,7 @@ export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     schema,
+     codeBlock,
     initialContent: [
       {
         type: "paragraph",
@@ -184,6 +223,7 @@ export default function App() {
             editor={editor} 
             formattingToolbar={false} 
             slashMenu={false} 
+            comments={true}
             data-color-scheme="bw"
             onSelectionChange={handleSelectionChange}
           >
@@ -257,6 +297,19 @@ export default function App() {
                 return filterSuggestionItems(defaultItems, query);
               }}
             />
+             <SuggestionMenuController
+        triggerCharacter={"@"}
+        getItems={async (query) =>
+          // Gets the mentions menu items
+          filterSuggestionItems(getMentionMenuItems(editor), query)
+        }
+      />
+
+       <SideMenuController
+        sideMenu={(props) => (
+          <SideMenu {...props} dragHandleMenu={CustomDragHandleMenu} />
+        )}
+      />
           </BlockNoteView>
         </div>
       </div>
